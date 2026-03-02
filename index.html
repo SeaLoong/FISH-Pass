@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FISH!Pass — roles.txt Generator</title>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --border: #30363d;
+        --text: #e6edf3;
+        --text2: #8b949e;
+        --accent: #58a6ff;
+        --accent-hover: #79c0ff;
+        --green: #3fb950;
+        --red: #f85149;
+        --radius: 8px;
+        --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--font);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+        color: var(--accent-hover);
+      }
+
+      /* Header */
+      .header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .header h1 span {
+        font-size: 24px;
+      }
+      .lang-toggle {
+        display: flex;
+        gap: 4px;
+        background: var(--bg);
+        border-radius: var(--radius);
+        padding: 2px;
+      }
+      .lang-toggle button {
+        background: none;
+        border: none;
+        color: var(--text2);
+        padding: 4px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        font-family: var(--font);
+        transition: all 0.15s;
+      }
+      .lang-toggle button.active {
+        background: var(--accent);
+        color: #fff;
+      }
+      .lang-toggle button:hover:not(.active) {
+        color: var(--text);
+      }
+
+      /* Main */
+      .container {
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 32px 24px;
+        flex: 1;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        margin-bottom: 24px;
+      }
+      .card h2 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card h2 .step {
+        background: var(--accent);
+        color: #fff;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+
+      /* Input */
+      textarea {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        padding: 12px;
+        font-family: 'Cascadia Code', 'Fira Code', monospace;
+        font-size: 14px;
+        resize: vertical;
+        min-height: 140px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      textarea:focus {
+        border-color: var(--accent);
+      }
+      .hint {
+        color: var(--text2);
+        font-size: 12px;
+        margin-top: 6px;
+      }
+
+      /* Roles */
+      .roles-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+      }
+      .role-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 8px 14px;
+        cursor: pointer;
+        transition: all 0.15s;
+        user-select: none;
+      }
+      .role-item:hover {
+        border-color: var(--accent);
+      }
+      .role-item.checked {
+        border-color: var(--green);
+        background: rgba(63, 185, 80, 0.1);
+      }
+      .role-item input[type='checkbox'] {
+        accent-color: var(--green);
+        width: 16px;
+        height: 16px;
+        cursor: pointer;
+      }
+      .role-label {
+        font-size: 14px;
+        font-weight: 500;
+      }
+      .role-desc {
+        font-size: 12px;
+        color: var(--text2);
+      }
+
+      /* Buttons */
+      .btn-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 20px;
+        border-radius: var(--radius);
+        font-size: 14px;
+        font-weight: 500;
+        font-family: var(--font);
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.15s;
+      }
+      .btn-primary {
+        background: var(--green);
+        color: #fff;
+        border-color: var(--green);
+      }
+      .btn-primary:hover {
+        background: #2ea043;
+      }
+      .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+        border-color: var(--border);
+      }
+      .btn-secondary:hover {
+        background: var(--border);
+      }
+      .btn-copy.copied {
+        background: var(--green);
+        color: #fff;
+        border-color: var(--green);
+      }
+
+      /* Output */
+      .output-wrap {
+        position: relative;
+      }
+      .output-wrap textarea {
+        min-height: 120px;
+      }
+      .status {
+        padding: 8px 12px;
+        border-radius: var(--radius);
+        font-size: 13px;
+        margin-top: 12px;
+        display: none;
+      }
+      .status.success {
+        display: block;
+        background: rgba(63, 185, 80, 0.1);
+        border: 1px solid rgba(63, 185, 80, 0.3);
+        color: var(--green);
+      }
+      .status.error {
+        display: block;
+        background: rgba(248, 81, 73, 0.1);
+        border: 1px solid rgba(248, 81, 73, 0.3);
+        color: var(--red);
+      }
+
+      /* Preview */
+      .preview-toggle {
+        background: none;
+        border: none;
+        color: var(--accent);
+        font-size: 12px;
+        cursor: pointer;
+        font-family: var(--font);
+        padding: 0;
+        margin-top: 8px;
+      }
+      .preview-toggle:hover {
+        text-decoration: underline;
+      }
+      .preview-box {
+        margin-top: 8px;
+        display: none;
+      }
+      .preview-box.show {
+        display: block;
+      }
+      .preview-box pre {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 12px;
+        font-size: 12px;
+        overflow-x: auto;
+        color: var(--text2);
+        max-height: 200px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        padding: 24px;
+        color: var(--text2);
+        font-size: 13px;
+        border-top: 1px solid var(--border);
+      }
+      .footer a {
+        color: var(--accent);
+      }
+
+      /* Responsive */
+      @media (max-width: 600px) {
+        .container {
+          padding: 16px;
+        }
+        .card {
+          padding: 16px;
+        }
+        .roles-grid {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1><span>🐟</span> FISH!Pass</h1>
+      <div class="lang-toggle">
+        <button id="btn-zh" class="active" onclick="setLang('zh')">中文</button>
+        <button id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Step 1: Enter usernames -->
+      <div class="card">
+        <h2><span class="step">1</span> <span data-i18n="step1_title">输入 VRChat 显示名称</span></h2>
+        <textarea id="input-names" placeholder="" data-i18n-placeholder="names_placeholder" spellcheck="false"></textarea>
+        <div class="hint" data-i18n="names_hint">每行一个名称，空行自动忽略</div>
+      </div>
+
+      <!-- Step 2: Select roles -->
+      <div class="card">
+        <h2><span class="step">2</span> <span data-i18n="step2_title">选择角色标志</span></h2>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px" data-i18n="roles_desc">选择要分配给所有用户的角色权限标志，默认全选</p>
+        <div class="roles-grid">
+          <label class="role-item checked" id="role-p-label">
+            <input type="checkbox" id="role-p" checked />
+            <div>
+              <div class="role-label">P <span style="color: var(--text2); font-weight: 400">— Patron</span></div>
+              <div class="role-desc" data-i18n="role_p_desc">赞助者权限</div>
+            </div>
+          </label>
+          <label class="role-item checked" id="role-s-label">
+            <input type="checkbox" id="role-s" checked />
+            <div>
+              <div class="role-label">S <span style="color: var(--text2); font-weight: 400">— Supporter</span></div>
+              <div class="role-desc" data-i18n="role_s_desc">支持者权限</div>
+            </div>
+          </label>
+          <label class="role-item checked" id="role-n-label">
+            <input type="checkbox" id="role-n" checked />
+            <div>
+              <div class="role-label">N <span style="color: var(--text2); font-weight: 400">— Nitro</span></div>
+              <div class="role-desc" data-i18n="role_n_desc">Nitro 增强权限</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Step 3: Generate -->
+      <div class="card">
+        <h2><span class="step">3</span> <span data-i18n="step3_title">生成 roles.txt</span></h2>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="btn-generate" onclick="generate()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path
+                d="M8.22 2.97a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042l2.97-2.97H3.75a.75.75 0 0 1 0-1.5h7.44L8.22 4.03a.75.75 0 0 1 0-1.06Z"
+              />
+            </svg>
+            <span data-i18n="btn_generate">生成加密数据</span>
+          </button>
+        </div>
+
+        <button class="preview-toggle" id="btn-preview" onclick="togglePreview()" style="display: none">
+          <span data-i18n="show_preview">▶ 查看明文 JSON预览</span>
+        </button>
+        <div class="preview-box" id="preview-box">
+          <pre id="preview-json"></pre>
+        </div>
+
+        <div class="output-wrap" id="output-wrap" style="display: none; margin-top: 16px">
+          <textarea id="output" readonly></textarea>
+          <div class="btn-row">
+            <button class="btn btn-secondary btn-copy" id="btn-copy" onclick="copyOutput()">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path
+                  d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"
+                />
+                <path
+                  d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"
+                />
+              </svg>
+              <span data-i18n="btn_copy">复制</span>
+            </button>
+            <button class="btn btn-secondary" onclick="download()">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M2.75 14A1.75 1.75 0 0 1 1 12.25v-2.5a.75.75 0 0 1 1.5 0v2.5c0 .138.112.25.25.25h10.5a.25.25 0 0 0 .25-.25v-2.5a.75.75 0 0 1 1.5 0v2.5A1.75 1.75 0 0 1 13.25 14Z" />
+                <path d="M7.25 7.689V2a.75.75 0 0 1 1.5 0v5.689l1.97-1.969a.749.749 0 1 1 1.06 1.06l-3.25 3.25a.749.749 0 0 1-1.06 0L4.22 6.78a.749.749 0 1 1 1.06-1.06l1.97 1.969Z" />
+              </svg>
+              <span data-i18n="btn_download">下载 roles.txt</span>
+            </button>
+          </div>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span data-i18n="footer_note">所有加密操作均在浏览器本地完成，不传输任何数据</span><br />
+      <span style="margin-top: 4px; display: inline-block">
+        <a href="https://github.com/SeaLoong/FISH-Pass">FISH!Pass</a> · <a href="https://github.com/SeaLoong/SimpleProxy">SimpleProxy</a> ·
+        <a href="https://github.com/SeaLoong/Fish-Udon-Raw-Ilcode">Fish-Udon-Raw-Ilcode</a>
+      </span>
+    </div>
+
+    <script>
+      // ===== i18n =====
+      const I18N = {
+        zh: {
+          step1_title: '输入 VRChat 显示名称',
+          names_placeholder: 'PlayerName1\nPlayerName2\nPlayerName3',
+          names_hint: '每行一个名称，空行自动忽略',
+          step2_title: '选择角色标志',
+          roles_desc: '选择要分配给所有用户的角色权限标志，默认全选',
+          role_p_desc: '赞助者权限',
+          role_s_desc: '支持者权限',
+          role_n_desc: 'Nitro 增强权限',
+          step3_title: '生成 roles.txt',
+          btn_generate: '生成加密数据',
+          show_preview: '▶ 查看明文 JSON 预览',
+          hide_preview: '▼ 隐藏明文 JSON 预览',
+          btn_copy: '复制',
+          btn_copied: '已复制！',
+          btn_download: '下载 roles.txt',
+          footer_note: '所有加密操作均在浏览器本地完成，不传输任何数据',
+          status_success: '✓ 已成功生成加密 roles.txt（{count} 名玩家）',
+          status_empty: '请输入至少一个用户名称',
+          status_error: '加密失败：{error}',
+        },
+        en: {
+          step1_title: 'Enter VRChat Display Names',
+          names_placeholder: 'PlayerName1\nPlayerName2\nPlayerName3',
+          names_hint: 'One name per line, blank lines are ignored',
+          step2_title: 'Select Role Flags',
+          roles_desc: 'Choose role flags to assign to all users (all selected by default)',
+          role_p_desc: 'Patron privileges',
+          role_s_desc: 'Supporter privileges',
+          role_n_desc: 'Nitro boost privileges',
+          step3_title: 'Generate roles.txt',
+          btn_generate: 'Generate Encrypted Data',
+          show_preview: '▶ Show plaintext JSON preview',
+          hide_preview: '▼ Hide plaintext JSON preview',
+          btn_copy: 'Copy',
+          btn_copied: 'Copied!',
+          btn_download: 'Download roles.txt',
+          footer_note: 'All encryption is performed locally in your browser — no data is transmitted',
+          status_success: '✓ Successfully generated encrypted roles.txt ({count} players)',
+          status_empty: 'Please enter at least one username',
+          status_error: 'Encryption failed: {error}',
+        },
+      };
+
+      let currentLang = localStorage.getItem('fish-pass-lang') || 'zh';
+
+      function setLang(lang) {
+        currentLang = lang;
+        localStorage.setItem('fish-pass-lang', lang);
+        document.getElementById('btn-zh').classList.toggle('active', lang === 'zh');
+        document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+        document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (I18N[lang][key]) el.textContent = I18N[lang][key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+          const key = el.getAttribute('data-i18n-placeholder');
+          if (I18N[lang][key]) el.placeholder = I18N[lang][key];
+        });
+      }
+
+      function t(key, vars) {
+        let s = I18N[currentLang][key] || key;
+        if (vars)
+          Object.keys(vars).forEach(k => {
+            s = s.replace(`{${k}}`, vars[k]);
+          });
+        return s;
+      }
+
+      // ===== Checkbox visual sync =====
+      document.querySelectorAll('.role-item input[type="checkbox"]').forEach(cb => {
+        cb.addEventListener('change', () => {
+          cb.closest('.role-item').classList.toggle('checked', cb.checked);
+        });
+      });
+
+      // ===== AES-256-CBC Crypto (Fish World Protocol) =====
+
+      const AES_SBOX = [
+        0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
+        0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
+        0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84, 0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf,
+        0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8, 0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2,
+        0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73, 0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb,
+        0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79, 0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08,
+        0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a, 0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e,
+        0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
+      ];
+
+      // Obfuscated passphrase and salt from Fish World Udon IL
+      const PP_RAW = [206, 150, 228, 196, 226, 220, 230, 238, 253, 219, 224, 209, 253, 205, 155, 220, 197, 243, 237, 147, 204, 150, 246, 236, 157, 248, 224, 241, 203, 218, 228, 245];
+      const SALT_RAW = [242, 228, 231, 212, 243, 215, 230, 214, 251, 154, 207, 233, 213, 236, 156, 197, 214, 144, 212, 215, 151, 148, 238, 229, 198, 222, 243, 221, 159, 231, 207, 205];
+
+      function xorDecode(raw) {
+        return new Uint8Array(raw.map((b, i) => b ^ 163 ^ (i & 15)));
+      }
+
+      function fishDeriveKey(ppBytes, saltBytes) {
+        const combined = new Uint8Array(ppBytes.length + saltBytes.length);
+        combined.set(ppBytes, 0);
+        combined.set(saltBytes, ppBytes.length);
+        let derived = new Uint8Array(32);
+        for (let i = 0; i < 32; i++) derived[i] = combined[i % combined.length];
+        for (let round = 0; round < 1000; round++) {
+          const temp = new Uint8Array(32);
+          const rx = round & 0xff;
+          for (let j = 0; j < 32; j++) {
+            const prev = derived[(j + 31) % 32];
+            const curr = derived[j];
+            const next = derived[(j + 1) % 32];
+            const sb = saltBytes[(round + j) % saltBytes.length];
+            temp[j] = AES_SBOX[(prev ^ curr ^ next ^ sb ^ rx) & 0xff];
+          }
+          derived = temp;
+        }
+        return derived;
+      }
+
+      // Derive the key once at load
+      const PP_BYTES = xorDecode(PP_RAW);
+      const SALT_BYTES = xorDecode(SALT_RAW);
+      const KEY_BYTES = fishDeriveKey(PP_BYTES, SALT_BYTES);
+
+      async function aesEncrypt(plaintext) {
+        const key = await crypto.subtle.importKey('raw', KEY_BYTES, 'AES-CBC', false, ['encrypt']);
+        const iv = crypto.getRandomValues(new Uint8Array(16));
+        const enc = new TextEncoder().encode(plaintext);
+        const ct = await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, key, enc);
+        const out = new Uint8Array(16 + ct.byteLength);
+        out.set(iv, 0);
+        out.set(new Uint8Array(ct), 16);
+        // Base64 encode
+        let binary = '';
+        for (let i = 0; i < out.length; i++) binary += String.fromCharCode(out[i]);
+        return btoa(binary);
+      }
+
+      // ===== Generate =====
+
+      function getNames() {
+        return document
+          .getElementById('input-names')
+          .value.split('\n')
+          .map(s => s.trim())
+          .filter(s => s.length > 0);
+      }
+
+      function getRoles() {
+        const roles = [];
+        if (document.getElementById('role-p').checked) roles.push('p');
+        if (document.getElementById('role-s').checked) roles.push('s');
+        if (document.getElementById('role-n').checked) roles.push('n');
+        return roles.join(',');
+      }
+
+      function buildJSON(names, roleStr) {
+        const players = {};
+        for (const name of names) players[name] = roleStr;
+        return JSON.stringify({ v: '1', players });
+      }
+
+      let previewVisible = false;
+      function togglePreview() {
+        previewVisible = !previewVisible;
+        document.getElementById('preview-box').classList.toggle('show', previewVisible);
+        document.getElementById('btn-preview').querySelector('span').textContent = previewVisible ? t('hide_preview') : t('show_preview');
+      }
+
+      function showStatus(type, msg) {
+        const el = document.getElementById('status');
+        el.className = 'status ' + type;
+        el.textContent = msg;
+      }
+
+      async function generate() {
+        const names = getNames();
+        if (names.length === 0) {
+          showStatus('error', t('status_empty'));
+          return;
+        }
+        const roleStr = getRoles();
+        const json = buildJSON(names, roleStr);
+
+        // Show preview
+        document.getElementById('preview-json').textContent = JSON.stringify(JSON.parse(json), null, 2);
+        document.getElementById('btn-preview').style.display = 'block';
+
+        const btn = document.getElementById('btn-generate');
+        btn.disabled = true;
+        btn.querySelector('span').textContent = '...';
+
+        try {
+          const encrypted = await aesEncrypt(json);
+          document.getElementById('output').value = encrypted;
+          document.getElementById('output-wrap').style.display = 'block';
+          showStatus('success', t('status_success', { count: names.length }));
+        } catch (e) {
+          showStatus('error', t('status_error', { error: e.message }));
+        } finally {
+          btn.disabled = false;
+          btn.querySelector('span').textContent = t('btn_generate');
+        }
+      }
+
+      function copyOutput() {
+        const text = document.getElementById('output').value;
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('btn-copy');
+          btn.classList.add('copied');
+          btn.querySelector('span').textContent = t('btn_copied');
+          setTimeout(() => {
+            btn.classList.remove('copied');
+            btn.querySelector('span').textContent = t('btn_copy');
+          }, 2000);
+        });
+      }
+
+      function download() {
+        const text = document.getElementById('output').value;
+        const blob = new Blob([text], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'roles.txt';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      // Init language
+      setLang(currentLang);
+    </script>
+  </body>
+</html>
