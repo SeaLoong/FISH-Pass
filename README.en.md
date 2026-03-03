@@ -23,7 +23,7 @@ For technical details on the encryption protocol, see [Fish-Udon-Raw-Ilcode](htt
 
 #### 1. Generate `roles.txt`
 
-Use the **online tool**: **[FISH!Pass Generator](https://sealoong.github.io/FISH-Pass/)** (or open `index.html` locally)
+Use the **online tool**: **[FISH!Pass Generator](https://fish-pass.vercel.app/generator.html)** (or open `generator.html` locally)
 
 1. Enter VRChat display names (one per line)
 2. Select role flags — **P** (Patron), **S** (Supporter), **N** (Nitro) — all selected by default
