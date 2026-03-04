@@ -369,9 +369,35 @@
         </div>
       </div>
 
-      <!-- Step 3: Generate -->
+      <!-- Step 3: Key Configuration -->
       <div class="card">
-        <h2><span class="step">3</span> <span data-i18n="step3_title">生成 roles.txt</span></h2>
+        <h2><span class="step">3</span> <span data-i18n="step3_key_title">密钥设置</span></h2>
+        <p style="font-size: 13px; color: var(--text2); margin-bottom: 12px" data-i18n="key_desc">使用内置密钥或输入自定义密钥，默认使用 Fish World 内置密钥</p>
+        <div class="toggle-group" id="keyModeGroup" style="display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap;">
+          <button class="active" data-mode="builtin" onclick="setKeyMode('builtin')" style="background: #30363d; color: var(--accent); border: 1px solid var(--accent); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; font-family: var(--font); transition: all 0.15s;" data-i18n="key_builtin">Fish World 内置密钥</button>
+          <button data-mode="custom" onclick="setKeyMode('custom')" style="background: #21262d; border: 1px solid var(--border); color: var(--text2); padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; font-family: var(--font); transition: all 0.15s;" data-i18n="key_custom">自定义 Hex 密钥</button>
+        </div>
+        <!-- Built-in Key Display -->
+        <div id="builtinKeyArea">
+          <div style="font-size: 12px; color: var(--text2); margin-bottom: 8px; line-height: 1.6" id="keyParamInfo"></div>
+          <div style="margin-top: 8px; padding: 10px 14px; background: var(--bg); border: 1px dashed var(--green); border-radius: 6px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 13px; color: #7ee787; word-break: break-all;">
+            <div style="color: var(--text2); font-size: 11px; margin-bottom: 4px" data-i18n="derived_label">派生密钥 (Hex, 32 bytes)</div>
+            <span id="derivedKeyHex"></span>
+          </div>
+        </div>
+        <!-- Custom Key Input -->
+        <div id="customKeyArea" style="display: none;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <label style="font-size: 13px; color: var(--text2); margin-bottom: 0" data-i18n="custom_key_label">AES-256 Key（64 Hex = 32 字节）</label>
+          </div>
+          <input type="text" id="customKeyInput" maxlength="64" placeholder="" data-i18n-placeholder="custom_key_placeholder" style="width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); padding: 10px 12px; font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 13px; outline: none;" />
+          <div class="hint" data-i18n="custom_key_hint">输入 64 个十六进制字符（32字节），留空将使用内置密钥</div>
+        </div>
+      </div>
+
+      <!-- Step 4: Generate -->
+      <div class="card">
+        <h2><span class="step">4</span> <span data-i18n="step4_title">生成 roles.txt</span></h2>
         <div class="btn-row">
           <button class="btn btn-primary" id="btn-generate" onclick="generate()">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -437,7 +463,15 @@
           role_p_desc: '赞助者权限',
           role_s_desc: '支持者权限',
           role_n_desc: 'Nitro 增强权限',
-          step3_title: '生成 roles.txt',
+          step3_key_title: '密钥设置',
+          key_desc: '使用内置密钥或输入自定义密钥，默认使用 Fish World 内置密钥',
+          key_builtin: 'Fish World 内置密钥',
+          key_custom: '自定义 Hex 密钥',
+          derived_label: '派生密钥 (Hex, 32 bytes)',
+          custom_key_label: 'AES-256 Key（64 Hex = 32 字节）',
+          custom_key_placeholder: '输入 64 个十六进制字符…',
+          custom_key_hint: '输入 64 个十六进制字符（32字节），留空将使用内置密钥',
+          step4_title: '生成 roles.txt',
           btn_generate: '生成加密数据',
           show_preview: '▶ 查看明文 JSON 预览',
           hide_preview: '▼ 隐藏明文 JSON 预览',
@@ -448,6 +482,7 @@
           status_success: '✓ 已成功生成加密 roles.txt（{count} 名玩家）',
           status_empty: '请输入至少一个用户名称',
           status_error: '加密失败：{error}',
+          status_key_error: '自定义密钥格式错误：需要 64 个十六进制字符（32字节）',
         },
         en: {
           step1_title: 'Enter VRChat Display Names',
@@ -458,7 +493,15 @@
           role_p_desc: 'Patron privileges',
           role_s_desc: 'Supporter privileges',
           role_n_desc: 'Nitro boost privileges',
-          step3_title: 'Generate roles.txt',
+          step3_key_title: 'Key Configuration',
+          key_desc: 'Use built-in key or enter a custom key. Built-in Fish World key is used by default',
+          key_builtin: 'Fish World Built-in Key',
+          key_custom: 'Custom Hex Key',
+          derived_label: 'Derived Key (Hex, 32 bytes)',
+          custom_key_label: 'AES-256 Key (64 Hex = 32 bytes)',
+          custom_key_placeholder: 'Enter 64 hex characters…',
+          custom_key_hint: 'Enter 64 hex characters (32 bytes). Leave empty to use built-in key',
+          step4_title: 'Generate roles.txt',
           btn_generate: 'Generate Encrypted Data',
           show_preview: '▶ Show plaintext JSON preview',
           hide_preview: '▼ Hide plaintext JSON preview',
@@ -469,6 +512,7 @@
           status_success: '✓ Successfully generated encrypted roles.txt ({count} players)',
           status_empty: 'Please enter at least one username',
           status_error: 'Encryption failed: {error}',
+          status_key_error: 'Custom key format error: need 64 hex characters (32 bytes)',
         },
       };
 
@@ -519,13 +563,26 @@
         0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16,
       ];
 
-      // Obfuscated passphrase and salt from Fish World Udon IL
-      const PP_RAW = [206, 150, 228, 196, 226, 220, 230, 238, 253, 219, 224, 209, 253, 205, 155, 220, 197, 243, 237, 147, 204, 150, 246, 236, 157, 248, 224, 241, 203, 218, 228, 245];
-      const SALT_RAW = [242, 228, 231, 212, 243, 215, 230, 214, 251, 154, 207, 233, 213, 236, 156, 197, 214, 144, 212, 215, 151, 148, 238, 229, 198, 222, 243, 221, 159, 231, 207, 205];
-
-      function xorDecode(raw) {
-        return new Uint8Array(raw.map((b, i) => b ^ 163 ^ (i & 15)));
-      }
+      // ===== Fish World Encryption Parameters — from DiscordRoleManager IL =====
+      // 混淆方案（口令）: decoded[i] = (raw[i] ^ k[i % k.length]) ^ ((i * 15 + 69) & 255)
+      //   其中 k 为 7 字节密钥因子: [91, 13, 177, 166, 164, 151, 73]
+      // 混淆方案（盐值）: decoded[i] = (raw[i] ^ 96) ^ (i & 31)
+      const FISH_KEY_PARAMS = {
+        ppRaw: [119, 26, 182, 140, 20, 72, 152, 190, 246, 13, 17, 45, 55, 14, 22, 31, 181, 165, 189, 131, 116, 169, 187, 93, 82, 77, 47, 214, 217, 143, 238, 213],
+        saltRaw: [5, 20, 15, 52, 86, 40, 44, 10, 61, 89, 44, 56, 58, 59, 0, 42, 17, 72, 26, 16, 58, 57, 5, 71, 59, 14, 67, 28, 27, 52, 20, 46],
+        kRaw: [91, 13, 177, 166, 164, 151, 73],
+        decodePP(raw) {
+          const k = this.kRaw;
+          let s = '';
+          for (let i = 0; i < raw.length; i++) s += String.fromCharCode((raw[i] ^ k[i % k.length]) ^ ((i * 15 + 69) & 255));
+          return s;
+        },
+        decodeSalt(raw) {
+          let s = '';
+          for (let i = 0; i < raw.length; i++) s += String.fromCharCode((raw[i] ^ 96) ^ (i & 31));
+          return s;
+        },
+      };
 
       function fishDeriveKey(ppBytes, saltBytes) {
         const combined = new Uint8Array(ppBytes.length + saltBytes.length);
@@ -548,13 +605,64 @@
         return derived;
       }
 
-      // Derive the key once at load
-      const PP_BYTES = xorDecode(PP_RAW);
-      const SALT_BYTES = xorDecode(SALT_RAW);
-      const KEY_BYTES = fishDeriveKey(PP_BYTES, SALT_BYTES);
+      function bytesToHex(buf) {
+        const a = new Uint8Array(buf);
+        let s = '';
+        for (let i = 0; i < a.length; i++) s += ('0' + a[i].toString(16)).slice(-2);
+        return s;
+      }
+
+      function hexToBytes(hex) {
+        hex = hex.replace(/\s+/g, '');
+        if (hex.length % 2 !== 0 || !/^[0-9a-fA-F]*$/.test(hex)) return null;
+        const bytes = new Uint8Array(hex.length / 2);
+        for (let i = 0; i < hex.length; i += 2) bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+        return bytes;
+      }
+
+      function buildFishKey() {
+        const v = FISH_KEY_PARAMS;
+        const ppStr = v.decodePP(v.ppRaw);
+        const saltStr = v.decodeSalt(v.saltRaw);
+        const ppBytes = new TextEncoder().encode(ppStr);
+        const saltBytes = new TextEncoder().encode(saltStr);
+        return { key: fishDeriveKey(ppBytes, saltBytes), ppStr, saltStr };
+      }
+
+      // 派生内置密钥
+      const FISH_RESULT = buildFishKey();
+      const BUILTIN_KEY_HEX = bytesToHex(FISH_RESULT.key);
+      let currentKeyMode = 'builtin'; // 'builtin' | 'custom'
+
+      function resolveKeyBytes() {
+        if (currentKeyMode === 'custom') {
+          const hex = document.getElementById('customKeyInput').value.trim();
+          if (hex) {
+            const kb = hexToBytes(hex);
+            if (!kb || kb.length !== 32) throw new Error(t('status_key_error'));
+            return kb;
+          }
+        }
+        // 默认使用内置密钥
+        return hexToBytes(BUILTIN_KEY_HEX);
+      }
+
+      function setKeyMode(mode) {
+        currentKeyMode = mode;
+        document.querySelectorAll('#keyModeGroup button').forEach(btn => {
+          const isActive = btn.getAttribute('data-mode') === mode;
+          btn.classList.toggle('active', isActive);
+          btn.style.background = isActive ? '#30363d' : '#21262d';
+          btn.style.color = isActive ? 'var(--accent)' : 'var(--text2)';
+          btn.style.borderColor = isActive ? 'var(--accent)' : 'var(--border)';
+        });
+        document.getElementById('builtinKeyArea').style.display = mode === 'builtin' ? 'block' : 'none';
+        document.getElementById('customKeyArea').style.display = mode === 'custom' ? 'block' : 'none';
+      }
 
       async function aesEncrypt(plaintext) {
-        const key = await crypto.subtle.importKey('raw', KEY_BYTES, 'AES-CBC', false, ['encrypt']);
+        const keyBytes = resolveKeyBytes();
+        const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-CBC', false, ['encrypt']);
         const iv = crypto.getRandomValues(new Uint8Array(16));
         const enc = new TextEncoder().encode(plaintext);
         const ct = await crypto.subtle.encrypt({ name: 'AES-CBC', iv }, key, enc);
@@ -656,6 +764,12 @@
         a.click();
         URL.revokeObjectURL(a.href);
       }
+
+      // 初始化内置密钥显示
+      document.getElementById('derivedKeyHex').textContent = BUILTIN_KEY_HEX;
+      document.getElementById('keyParamInfo').innerHTML =
+        (currentLang === 'zh' ? '口令/PP: ' : 'Passphrase/PP: ') + '<code style="background:#21262d;border-radius:4px;padding:1px 5px;font-family:monospace;font-size:12px;color:var(--accent-hover)">' + FISH_RESULT.ppStr + '</code><br/>' +
+        (currentLang === 'zh' ? '盐值/Salt: ' : 'Salt: ') + '<code style="background:#21262d;border-radius:4px;padding:1px 5px;font-family:monospace;font-size:12px;color:var(--accent-hover)">' + FISH_RESULT.saltStr + '</code>';
 
       // Init language
       setLang(currentLang);
